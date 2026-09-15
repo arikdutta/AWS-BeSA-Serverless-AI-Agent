@@ -1,0 +1,7 @@
+{
+  "bookingID": "REPLACE_WITH_YOUR_BOOKING_ID",
+  "decision": "approved",
+  "reviewer": "tutorial-user",
+  "timestamp": "2026-09-20T10:30:00Z",
+  "notes": "Approved after reviewing weather forecast - conditions expected to improve by travel date"
+}

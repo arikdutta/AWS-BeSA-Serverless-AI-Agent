@@ -1,0 +1,13 @@
+# SAM build output - regenerable via `sam build`, machine/architecture-specific
+.aws-sam/
+samconfig.toml
+
+# Python
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# Local env overrides (not currently used, excluded preemptively)
+.env

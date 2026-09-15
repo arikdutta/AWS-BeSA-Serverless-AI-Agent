@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Optional bonus module: Hotel Recommendation Agent. Deploy after the main
+  stack (template.yaml) and after creating + confirming an SNS email
+  subscription (see scripts/deploy-hotel-agent.sh). Plain CloudFormation, no
+  "Transform:" - see template.yaml's description for why this project avoids
+  the SAM transform.
+
+Parameters:
+  BusName:
+    Type: String
+  BusArn:
+    Type: String
+  SessionBucketName:
+    Type: String
+  SessionBucketArn:
+    Type: String
+  SnsTopicArn:
+    Type: String
+  BedrockModelId:
+    Type: String
+    Default: us.anthropic.claude-haiku-4-5-20251001-v1:0
+
+Resources:
+  HotelAgentRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: HotelAgentPermissions
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                  - bedrock:InvokeModelWithResponseStream
+                Resource: '*'
+              - Effect: Allow
+                Action: events:PutEvents
+                Resource: !Ref BusArn
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource: !Sub "${SessionBucketArn}/*"
+              - Effect: Allow
+                Action: s3:ListBucket
+                Resource: !Ref SessionBucketArn
+              - Effect: Allow
+                Action: sns:Publish
+                Resource: !Ref SnsTopicArn
+
+  HotelFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code: src/hotel_agent/
+      Handler: app.lambda_handler
+      Runtime: python3.13
+      Architectures: [x86_64]
+      Timeout: 90
+      MemorySize: 512
+      Role: !GetAtt HotelAgentRole.Arn
+      Environment:
+        Variables:
+          EVENT_BUS_NAME: !Ref BusName
+          SESSION_BUCKET: !Ref SessionBucketName
+          SNS_TOPIC_ARN: !Ref SnsTopicArn
+          BEDROCK_MODEL_ID: !Ref BedrockModelId
+
+Outputs:
+  HotelFunctionArn:
+    Value: !GetAtt HotelFunction.Arn

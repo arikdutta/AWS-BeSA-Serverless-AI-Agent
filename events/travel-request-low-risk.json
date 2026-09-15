@@ -1,0 +1,11 @@
+{
+  "bookingID": "low-risk-example-001",
+  "userId": "tutorial-user",
+  "origin": "SEA",
+  "destination": "Denver",
+  "travel_dates": { "start": "2026-04-10", "end": "2026-04-14" },
+  "travelers": 1,
+  "budget": 2000,
+  "airline_preference": "United",
+  "interests": ["hiking", "food"]
+}
