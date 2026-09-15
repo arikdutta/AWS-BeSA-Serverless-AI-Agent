@@ -533,5 +533,4 @@ scripts/
   toward production.
 - **No automated tests** — verification here is the same "run it and watch
   the logs" approach the original workshop uses.
-#   A W S - B e S A - S e r v e r l e s s - A I - A g e n t  
- 
+#
